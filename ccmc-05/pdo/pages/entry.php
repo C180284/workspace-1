@@ -1,6 +1,7 @@
 <?php
 //外部ファイルの読み込み
 require_once("../database.php");
+require_once("../classes.php");
 $pdo = connectDatabase();
 $sql="select * from areas";
 
@@ -11,17 +12,18 @@ $pstmt->execute();
 $rs = $pstmt->fetchAll();
 //で-たべース接続オブジェクト
 disconnectDatabase($pdo);
-//結果セットの確認
-echo "<pre>";
-var_dump($rs);
-echo "</pre>";
-exit(0);
+//結果セットを配列に格納
+$areas = [];
+foreach ($rs as $record) {
+    $id = intval($record["id"]);
+    $name = $record["name"];
+    $area = new Area($id , $name);
+    $areas[] = $area;
+}
 ?>
 
 
-
 <!DOCTYPE html>
-
 <html lang="ja">
 	<head>
 		<meta charset="utf-8" />
@@ -33,7 +35,9 @@ exit(0);
 		<form action="restaurants.php" method="get">
 		<select name="area">
 			<option value="0">-- 選択してください --</option>
-			<option value="1">福岡</option>
+			<?php foreach ($areas as $area) { ?>
+			<option value="<?= $area->getId() ?>"><?= $area->getName() ?></option>
+			<?php } ?>
 			<option value="2">神戸</option>
 			<option value="3">伊豆</option>
 		</select>
